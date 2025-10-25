@@ -1,4 +1,5 @@
 import React, { ReactNode } from "react";
+import * as Sentry from "@sentry/react";
 
 interface State {
   hasError: boolean;
@@ -19,13 +20,17 @@ class ErrorBoundary extends React.Component<ErrorBoundaryProps, State> {
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    console.log({ error, errorInfo });
+    // Log error to console
+    console.error("ErrorBoundary caught an error:", error, errorInfo);
+
+    // Send error to Sentry
+    Sentry.captureException(error, { extra: errorInfo });
   }
 
   render() {
     if (this.state.hasError) {
       return (
-        <div>
+        <div style={{ padding: "2rem", textAlign: "center" }}>
           <h2>Oops, there is an error!</h2>
           <button onClick={() => this.setState({ hasError: false })}>
             Try again?
